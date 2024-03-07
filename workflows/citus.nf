@@ -1,7 +1,9 @@
 nextflow.enable.dsl = 2
 
 include { paramsSummaryLog; paramsSummaryMap; fromSamplesheet } from 'plugin/nf-validation'
+// def summary_params = paramsSummaryMap(workflow)
 
+include { DUMPVERSION }                             from '../modules/local/dumpversion.nf'
 include { PB_GERMLINE }                             from '../modules/local/parabricks.nf'
 
 include { FASTQC }                                  from '../modules/nf-core/fastqc/main.nf'
@@ -113,7 +115,16 @@ workflow CITUS {
     versions = versions.mix(BCFTOOLS_STATS.out.versions)
     versions = versions.mix(VCFTOOLS_SUMMARY.out.versions)
 
+    version_yaml = Channel.empty()
+    DUMPVERSION(versions.unique().collectFile(name: 'collated_versions.yml'))
+    version_yaml = DUMPVERSION.out.mqc_yml.collect()
+
+    // workflow_summary    = WorkflowSarek.paramsSummaryMultiqc(workflow, summary_params)
+    // ch_workflow_summary = Channel.value(workflow_summary)
+
     multiqc_files = Channel.empty()
+    multiqc_files = multiqc_files.mix(version_yaml)
+    // multiqc_files = multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     multiqc_files = multiqc_files.mix(description.collectFile(name: 'methods_description_mqc.yaml'))
     multiqc_files = multiqc_files.mix(reports.collect().ifEmpty([]))
     MULTIQC(multiqc_files.collect(), mqc_config.collect().ifEmpty([]), [], [])

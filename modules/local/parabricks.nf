@@ -37,7 +37,7 @@ process PB_GERMLINE {
 
   cat <<-END_VERSIONS > versions.yml
   "${task.process}":
-      fastqc: \$( pbrun --version | sed -n 's/pbrun: \\([0-9.]*\\)/\\1/p' )
+      parabricks: \$( pbrun --version | sed -n 's/pbrun: \\([0-9.]*\\)/\\1/p' )
   END_VERSIONS
   """
 }
