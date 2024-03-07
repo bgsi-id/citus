@@ -30,9 +30,9 @@ workflow CITUS {
   mqc_config  = Channel.fromPath( multiqc_config, checkIfExists: true )
   description = Channel.fromPath( description )
 
-  fasta       = Channel.fromPath( params.fasta )
-  fai         = Channel.fromPath( "${params.fasta}.fai" )
-  target      = Channel.fromPath( params.target )
+  fasta       = Channel.fromPath( params.fasta ).first()
+  fai         = Channel.fromPath( "${params.fasta}.fai" ).first()
+  target      = Channel.fromPath( params.target ).first()
   bwa         = Channel.fromPath( params.bwa_index ).collect()
   
   reports     = Channel.empty()
@@ -43,7 +43,7 @@ workflow CITUS {
     reports = reports.mix(FASTQC.out.zip.collect{ meta, logs -> logs })
     versions = versions.mix(FASTQC.out.versions.first())
     
-    PB_GERMLINE(fastq.map{ meta, reads -> [ meta, reads[0], reads[1] ] }, fasta, bwa, params.known_site)
+    PB_GERMLINE(fastq, fasta, bwa, params.known_site)
     reports = reports.mix(PB_GERMLINE.out.recal.collect{ meta, report -> report })
     versions = versions.mix(PB_GERMLINE.out.versions)
     
