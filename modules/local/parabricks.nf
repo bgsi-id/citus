@@ -1,5 +1,8 @@
 process PB_GERMLINE {
   tag { meta.id }
+  
+  container 'nvcr.io/nvidia/clara/clara-parabricks:4.2.1-1'
+  containerOptions '--gpus all'
 
   input:
   tuple val( meta ), path(reads)

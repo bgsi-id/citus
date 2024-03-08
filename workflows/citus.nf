@@ -30,7 +30,7 @@ workflow CITUS {
   description = "${workflow.projectDir}/assets/methods_description_template.yml"
 
   mqc_config  = Channel.fromPath( multiqc_config, checkIfExists: true )
-  description = Channel.fromPath( description )
+  ch_multiqc_custom_methods_description = file( description, checkIfExists: true  )
 
   fasta       = Channel.fromPath( params.fasta ).first()
   fai         = Channel.fromPath( "${params.fasta}.fai" ).first()
@@ -119,13 +119,16 @@ workflow CITUS {
     DUMPVERSION(versions.unique().collectFile(name: 'collated_versions.yml'))
     version_yaml = DUMPVERSION.out.mqc_yml.collect()
 
-    // workflow_summary    = WorkflowSarek.paramsSummaryMultiqc(workflow, summary_params)
+    // workflow_summary    = WorkflowCitus.paramsSummaryMultiqc(workflow, summary_params)
     // ch_workflow_summary = Channel.value(workflow_summary)
+
+    methods_description    = WorkflowCitus.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description, params)
+    ch_methods_description = Channel.value(methods_description)
 
     multiqc_files = Channel.empty()
     multiqc_files = multiqc_files.mix(version_yaml)
     // multiqc_files = multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
-    multiqc_files = multiqc_files.mix(description.collectFile(name: 'methods_description_mqc.yaml'))
+    multiqc_files = multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
     multiqc_files = multiqc_files.mix(reports.collect().ifEmpty([]))
     MULTIQC(multiqc_files.collect(), mqc_config.collect().ifEmpty([]), [], [])
 }
