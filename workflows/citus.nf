@@ -20,8 +20,8 @@ include { VCFTOOLS as VCFTOOLS_SUMMARY }            from '../modules/nf-core/vcf
 include { MULTIQC }                                 from '../modules/nf-core/multiqc/main.nf'
 
 workflow CITUS {
-  if (params.samplesheet_input != 'NO_FILE') {
-    fastq = Channel.fromPath(params.samplesheet_input).splitCsv(header: true).map{ it -> [ [id: it['ID']], [ it['R1'], it['R2'] ] ] }
+  if (params.input != 'NO_FILE') {
+    fastq = Channel.fromPath(params.input).splitCsv(header: true).map{ it -> [ [id: it['ID']], [ it['R1'], it['R2'] ] ] }
   } else {
     fastq = Channel.fromFilePairs( params.fastq_search_path, flat: true ).map{ it -> [it[0].split('_')[0], it[1], it[2]] }.unique{ it -> it[0] }
   }
@@ -34,7 +34,7 @@ workflow CITUS {
 
   fasta       = Channel.fromPath( params.fasta ).first()
   fai         = Channel.fromPath( "${params.fasta}.fai" ).first()
-  target      = Channel.fromPath( params.target ).first()
+  region      = Channel.fromPath( params.region ).first()
   bwa         = Channel.fromPath( params.bwa_index ).collect()
   
   reports     = Channel.empty()
@@ -68,7 +68,7 @@ workflow CITUS {
     reports = reports.mix(SAMTOOLS_STATS.out.stats.collect{ meta, report -> report })
     versions = versions.mix(SAMTOOLS_STATS.out.versions)
 
-    MOSDEPTH(bam_bai.combine(target), fasta.map{ it -> [ [ id:'fasta' ], it ] })
+    MOSDEPTH(bam_bai.combine(region), fasta.map{ it -> [ [ id:'fasta' ], it ] })
     reports = reports.mix(MOSDEPTH.out.global_txt.collect{ meta, report -> report })
     reports = reports.mix(MOSDEPTH.out.regions_txt.collect{ meta, report -> report })
     versions = versions.mix(MOSDEPTH.out.versions)
@@ -86,7 +86,7 @@ workflow CITUS {
 
     BCFTOOLS_STATS(
       vcf_tbi,
-      target.map{ it -> [ [ id:'target' ], it ] },
+      region.map{ it -> [ [ id:'region' ], it ] },
       [[:],[]],
       [[:],[]],
       [[:],[]],
@@ -94,17 +94,17 @@ workflow CITUS {
     )
     VCFTOOLS_TSTV_COUNT(
       PB_GERMLINE.out.vcf,
-      target,
+      region,
       []
     )
     VCFTOOLS_TSTV_QUAL(
       PB_GERMLINE.out.vcf,
-      target,
+      region,
       []
     )
     VCFTOOLS_SUMMARY(
       PB_GERMLINE.out.vcf,
-      target,
+      region,
       []
     )
     reports = reports.mix(BCFTOOLS_STATS.out.stats.collect{ meta, stats -> stats })
