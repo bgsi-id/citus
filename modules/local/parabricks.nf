@@ -1,7 +1,7 @@
 process PB_GERMLINE {
   tag { meta.id }
   
-  container 'nvcr.io/nvidia/clara/clara-parabricks:4.2.1-1'
+  container 'nvcr.io/nvidia/clara/clara-parabricks:4.3.1-1'
   containerOptions '--gpus all'
 
   input:
@@ -36,7 +36,12 @@ process PB_GERMLINE {
   --knownSites ${known_site} \
   --out-bam ${ meta.id }.bam \
   --out-variants ${ meta.id }.vcf \
-  --out-recal-file ${ meta.id }_recal.txt
+  --out-recal-file ${ meta.id }_recal.txt \
+  --num-cpu-threads-per-stage 16 \
+  --bwa-cpu-thread-pool 16 \
+  --gpusort \
+  --gpuwrite \
+  --fq2bamfast 
 
   cat <<-END_VERSIONS > versions.yml
   "${task.process}":
