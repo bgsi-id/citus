@@ -38,8 +38,6 @@ process PB_GERMLINE {
   --out-bam ${ meta.id }.bam \
   --out-variants ${ meta.id }.vcf \
   --out-recal-file ${ meta.id }_recal.txt \
-  --gpusort \
-  --gpuwrite \
   --memory-limit ${ memory }
 
   cat <<-END_VERSIONS > versions.yml
