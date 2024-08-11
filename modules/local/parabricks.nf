@@ -38,11 +38,6 @@ process PB_GERMLINE {
   --out-bam ${ meta.id }.bam \
   --out-variants ${ meta.id }.vcf \
   --out-recal-file ${ meta.id }_recal.txt \
-  --num-cpu-threads-per-stage 16 \
-  --bwa-cpu-thread-pool 16 \
-  --gpusort \
-  --gpuwrite \
-  --fq2bamfast \
   --memory-limit ${ memory }
 
   cat <<-END_VERSIONS > versions.yml
