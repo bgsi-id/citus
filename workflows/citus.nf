@@ -68,7 +68,7 @@ workflow CITUS {
     reports = reports.mix(SAMTOOLS_STATS.out.stats.collect{ meta, report -> report })
     versions = versions.mix(SAMTOOLS_STATS.out.versions)
 
-    MOSDEPTH(bam_bai.combine(region), fasta.map{ it -> [ [ id:'fasta' ], it ] }, "--no-per-base")
+    MOSDEPTH(bam_bai.combine(region), fasta.map{ it -> [ [ id:'fasta' ], it ] }) 
     reports = reports.mix(MOSDEPTH.out.global_txt.collect{ meta, report -> report })
     reports = reports.mix(MOSDEPTH.out.regions_txt.collect{ meta, report -> report })
     versions = versions.mix(MOSDEPTH.out.versions)
