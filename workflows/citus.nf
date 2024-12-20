@@ -18,6 +18,7 @@ include { VCFTOOLS as VCFTOOLS_TSTV_COUNT }         from '../modules/nf-core/vcf
 include { VCFTOOLS as VCFTOOLS_TSTV_QUAL }          from '../modules/nf-core/vcftools/main.nf'
 include { VCFTOOLS as VCFTOOLS_SUMMARY }            from '../modules/nf-core/vcftools/main.nf'
 include { MULTIQC }                                 from '../modules/nf-core/multiqc/main.nf'
+include { VERIFYBAMID2 }                            from '../modules/nf-core/verifybamid/verifybamid2/main.nf'
 
 workflow CITUS {
   if (params.input != 'NO_FILE') {
@@ -55,6 +56,14 @@ workflow CITUS {
 
     bam_bai = PB_GERMLINE.out.bam.join(SAMTOOLS_INDEX.out.bai, failOnDuplicate: true, failOnMismatch: true)
 
+    VERIFYBAMID2(
+      bam_bai,
+      fasta.map{ it -> [ [ id:'fasta' ], it ] },
+      Channel.fromPath(params.svd_prefix)
+    )
+    reports = reports.mix(VERIFYBAMID2.out.selfSM.collect{ meta, report -> report })
+    versions = versions.mix(VERIFYBAMID2.out.versions)
+
     SAMTOOLS_CONVERT(
       bam_bai,
       fasta.map{ it -> [ [ id:'fasta' ], it ] },
@@ -68,7 +77,7 @@ workflow CITUS {
     reports = reports.mix(SAMTOOLS_STATS.out.stats.collect{ meta, report -> report })
     versions = versions.mix(SAMTOOLS_STATS.out.versions)
 
-    MOSDEPTH(bam_bai.combine(region), fasta.map{ it -> [ [ id:'fasta' ], it ] }) 
+    MOSDEPTH(bam_bai.combine(region), fasta.map{ it -> [ [ id:'fasta' ], it ] })
     reports = reports.mix(MOSDEPTH.out.global_txt.collect{ meta, report -> report })
     reports = reports.mix(MOSDEPTH.out.regions_txt.collect{ meta, report -> report })
     versions = versions.mix(MOSDEPTH.out.versions)
