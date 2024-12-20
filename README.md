@@ -15,6 +15,7 @@ nextflow run bgsi-id/citus
     --bwa_index     genome.bwa/ \
     --region        calling.bed \
     --known_site    indels.vcf.gz \
+    --svd_prefix    's3://bgsi-data-dev/JY/1000g.phase3.100k.b38.vcf.gz.dat' \
     --outdir        outdir/ \
     --gpu           single \
     -work-dir       work/ \
