@@ -7,7 +7,7 @@ process PB_GERMLINE {
   input:
   tuple val( meta ), path(reads)
   path(fasta)
-  path(bwa)
+  // path(bwa)
   path(known_site)
 
   output:
@@ -29,7 +29,6 @@ process PB_GERMLINE {
 
   nvidia-smi
   
-  mv ${bwa}/* .
   pbrun germline \
   --ref ${fasta} \
   --in-fq ${renamed_files} \

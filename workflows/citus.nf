@@ -35,17 +35,17 @@ workflow CITUS {
   fasta       = Channel.fromPath( params.fasta ).first()
   fai         = Channel.fromPath( "${params.fasta}.fai" ).first()
   region      = Channel.fromPath( params.region ).first()
-  bwa         = Channel.fromPath( params.bwa_index ).collect()
+  // bwa         = Channel.fromPath( params.bwa_index ).collect()
   
   reports     = Channel.empty()
   versions    = Channel.empty()
 
   main:
-    FASTQC(fastq)
-    reports = reports.mix(FASTQC.out.zip.collect{ meta, logs -> logs })
-    versions = versions.mix(FASTQC.out.versions.first())
+    // FASTQC(fastq)
+    // reports = reports.mix(FASTQC.out.zip.collect{ meta, logs -> logs })
+    // versions = versions.mix(FASTQC.out.versions.first())
     
-    PB_GERMLINE(fastq, fasta, bwa, params.known_site)
+    PB_GERMLINE(fastq, fasta, params.known_site)
     reports = reports.mix(PB_GERMLINE.out.recal.collect{ meta, report -> report })
     versions = versions.mix(PB_GERMLINE.out.versions)
     
