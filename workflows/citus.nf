@@ -41,9 +41,9 @@ workflow CITUS {
   versions    = Channel.empty()
 
   main:
-    // FASTQC(fastq)
-    // reports = reports.mix(FASTQC.out.zip.collect{ meta, logs -> logs })
-    // versions = versions.mix(FASTQC.out.versions.first())
+    FASTQC(fastq)
+    reports = reports.mix(FASTQC.out.zip.collect{ meta, logs -> logs })
+    versions = versions.mix(FASTQC.out.versions.first())
     
     PB_GERMLINE(fastq, fasta, params.known_site)
     reports = reports.mix(PB_GERMLINE.out.recal.collect{ meta, report -> report })
