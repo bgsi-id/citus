@@ -57,9 +57,13 @@ workflow CITUS {
     bam_bai = PB_GERMLINE.out.bam.join(SAMTOOLS_INDEX.out.bai, failOnDuplicate: true, failOnMismatch: true)
 
     VERIFYBAMID2(
-      bam_bai,
-      fasta.map{ it -> [ [ id:'fasta' ], it ] },
-      Channel.fromPath(params.svd_prefix)
+    bam_bai,
+    Channel.fromPath("${params.svd_prefix}.{UD,mu,bed}").collect().map { files -> 
+        if(files.size() != 3) error "Missing SVD files, expected 3 files with extensions .UD, .mu, and .bed"
+        files 
+    },
+    Channel.fromPath(params.known_site),
+    Channel.fromPath(params.fasta)
     )
     reports = reports.mix(VERIFYBAMID2.out.selfSM.collect{ meta, report -> report })
     versions = versions.mix(VERIFYBAMID2.out.versions)
