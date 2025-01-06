@@ -1,4 +1,4 @@
-process VERIFYBAMID_VERIFYBAMID2 {
+process VERIFYBAMID2 {
     tag '${meta.id}'
     label 'process_low'
 
