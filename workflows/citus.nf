@@ -65,7 +65,7 @@ workflow CITUS {
     Channel.fromPath(params.known_site),
     Channel.fromPath(params.fasta)
     )
-    reports = reports.mix(VERIFYBAMID2.out.selfSM.collect{ meta, report -> report })
+    reports = reports.mix(VERIFYBAMID2.out.self_sm.collect{ meta, report -> report })
     versions = versions.mix(VERIFYBAMID2.out.versions)
 
     SAMTOOLS_CONVERT(
