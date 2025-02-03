@@ -30,9 +30,9 @@ process PB_GERMLINE {
 
   nvidia-smi
   
-  mv ${bwa}/* .
   pbrun germline \
   --ref ${fasta} \
+  --ref-dir s3://bgsi-data-dev/JY/BWAIndex/ \
   --in-fq ${renamed_files} \
   --knownSites ${known_site} \
   --out-bam ${ meta.id }.bam \
